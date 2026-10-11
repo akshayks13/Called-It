@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #0b1015;
+  --color-panel: #131a22;
+  --color-raised: #1a232d;
+  --color-line: #26323f;
+  --color-fg: #e9eef3;
+  --color-muted: #8b99a9;
+  --color-faint: #5d6b7a;
+  --color-amber: #ffb020;
+  --color-hit: #35d07f;
+  --color-miss: #ff5d5d;
+  --color-mine: #17503f;
+  --color-paper: #f4efe2;
+  --color-paper-ink: #22211d;
+  --color-paper-muted: #6f6b5f;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-anton), Impact, sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A torn paper slip: scalloped top and bottom edges */
+.receipt {
+  --notch: 4px;
+  background: var(--color-paper);
+  color: var(--color-paper-ink);
+  font-family: var(--font-mono);
+  -webkit-mask:
+    radial-gradient(var(--notch) at 50% 0, #0000 97%, #000) 50% 0 / 11px 51% repeat-x,
+    radial-gradient(var(--notch) at 50% 100%, #0000 97%, #000) 50% 100% / 11px 51% repeat-x;
+  mask:
+    radial-gradient(var(--notch) at 50% 0, #0000 97%, #000) 50% 0 / 11px 51% repeat-x,
+    radial-gradient(var(--notch) at 50% 100%, #0000 97%, #000) 50% 100% / 11px 51% repeat-x;
+}
+
+.receipt-rule {
+  border-top: 1px dashed #b9b29e;
+}
+
+/* The umpire's verdict, stamped on the slip */
+.stamp {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  border: 3px solid currentColor;
+  border-radius: 6px;
+  padding: 5px 10px 3px;
+  transform: rotate(-7deg);
+  mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+.stamp-hit {
+  color: #0d8a4a;
+}
+.stamp-miss {
+  color: #c9342c;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.rise {
+  animation: rise 0.22s ease-out both;
+}
+
+@keyframes thump {
+  0% {
+    opacity: 0;
+    transform: rotate(-7deg) scale(2.2);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-7deg) scale(0.94);
+  }
+  100% {
+    transform: rotate(-7deg) scale(1);
+  }
+}
+.thump {
+  animation: thump 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .thump {
+    animation: none;
+  }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

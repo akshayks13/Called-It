@@ -1,0 +1,240 @@
+{
+ "note": "Learned from 415 men's T20Is between full members, 2019-01-01 to 2024-06-29 (exclusive). Player factors use each player's T20Is before 2024-06-29. Source: Cricsheet.",
+ "matches": 415,
+ "phases": {
+  "pp": {
+   "0": 0.4122,
+   "1": 0.2957,
+   "2": 0.0488,
+   "3": 0.0069,
+   "4": 0.1464,
+   "6": 0.0437,
+   "W": 0.0462,
+   "extra": 0.0378
+  },
+  "mid": {
+   "0": 0.2695,
+   "1": 0.4705,
+   "2": 0.0714,
+   "3": 0.0028,
+   "4": 0.088,
+   "6": 0.05,
+   "W": 0.0479,
+   "extra": 0.0326
+  },
+  "death": {
+   "0": 0.2176,
+   "1": 0.4025,
+   "2": 0.0955,
+   "3": 0.0041,
+   "4": 0.1153,
+   "6": 0.0787,
+   "W": 0.0861,
+   "extra": 0.0534
+  }
+ },
+ "batters": {
+  "RG Sharma": {
+   "boundary": 1.1694,
+   "out": 0.8321,
+   "balls": 2865
+  },
+  "V Kohli": {
+   "boundary": 0.9705,
+   "out": 0.5503,
+   "balls": 2856
+  },
+  "RR Pant": {
+   "boundary": 0.9612,
+   "out": 1.0087,
+   "balls": 873
+  },
+  "SA Yadav": {
+   "boundary": 1.4317,
+   "out": 0.7255,
+   "balls": 1361
+  },
+  "AR Patel": {
+   "boundary": 1.016,
+   "out": 1.1878,
+   "balls": 279
+  },
+  "S Dube": {
+   "boundary": 0.868,
+   "out": 0.9454,
+   "balls": 205
+  },
+  "HH Pandya": {
+   "boundary": 1.0276,
+   "out": 0.9771,
+   "balls": 1020
+  },
+  "RA Jadeja": {
+   "boundary": 0.8509,
+   "out": 0.9974,
+   "balls": 398
+  },
+  "Kuldeep Yadav": {
+   "boundary": 0.4529,
+   "out": 1.6895,
+   "balls": 59
+  },
+  "Arshdeep Singh": {
+   "boundary": 0.5912,
+   "out": 1.8559,
+   "balls": 41
+  },
+  "JJ Bumrah": {
+   "boundary": 0.5401,
+   "out": 1.9093,
+   "balls": 14
+  },
+  "RR Hendricks": {
+   "boundary": 1.0586,
+   "out": 0.8138,
+   "balls": 1474
+  },
+  "Q de Kock": {
+   "boundary": 1.1792,
+   "out": 0.817,
+   "balls": 1798
+  },
+  "AK Markram": {
+   "boundary": 1.1122,
+   "out": 0.8259,
+   "balls": 838
+  },
+  "T Stubbs": {
+   "boundary": 0.9364,
+   "out": 0.9528,
+   "balls": 296
+  },
+  "H Klaasen": {
+   "boundary": 1.0509,
+   "out": 1.0633,
+   "balls": 612
+  },
+  "DA Miller": {
+   "boundary": 0.9706,
+   "out": 0.7806,
+   "balls": 1709
+  },
+  "M Jansen": {
+   "boundary": 0.917,
+   "out": 1.097,
+   "balls": 60
+  },
+  "KA Maharaj": {
+   "boundary": 0.6199,
+   "out": 1.6895,
+   "balls": 91
+  },
+  "K Rabada": {
+   "boundary": 0.6666,
+   "out": 1.5312,
+   "balls": 138
+  },
+  "A Nortje": {
+   "boundary": 0.4814,
+   "out": 1.9651,
+   "balls": 34
+  },
+  "T Shamsi": {
+   "boundary": 0.4661,
+   "out": 1.9497,
+   "balls": 27
+  }
+ },
+ "bowlers": {
+  "RG Sharma": {
+   "econ": 1.0652,
+   "wkt": 0.8815,
+   "balls": 62
+  },
+  "V Kohli": {
+   "econ": 1.0132,
+   "wkt": 0.8328,
+   "balls": 152
+  },
+  "AR Patel": {
+   "econ": 0.9567,
+   "wkt": 0.9975,
+   "balls": 997
+  },
+  "S Dube": {
+   "econ": 1.1354,
+   "wkt": 0.8293,
+   "balls": 177
+  },
+  "HH Pandya": {
+   "econ": 1.0344,
+   "wkt": 1.0038,
+   "balls": 1541
+  },
+  "RA Jadeja": {
+   "econ": 0.9309,
+   "wkt": 0.8017,
+   "balls": 1290
+  },
+  "Kuldeep Yadav": {
+   "econ": 0.8679,
+   "wkt": 1.4272,
+   "balls": 794
+  },
+  "Arshdeep Singh": {
+   "econ": 1.0852,
+   "wkt": 1.2919,
+   "balls": 953
+  },
+  "JJ Bumrah": {
+   "econ": 0.8394,
+   "wkt": 1.0859,
+   "balls": 1437
+  },
+  "RR Hendricks": {
+   "econ": 1.0678,
+   "wkt": 0.9119,
+   "balls": 29
+  },
+  "AK Markram": {
+   "econ": 1.012,
+   "wkt": 0.9287,
+   "balls": 270
+  },
+  "T Stubbs": {
+   "econ": 1.0454,
+   "wkt": 0.9804,
+   "balls": 6
+  },
+  "H Klaasen": {
+   "econ": 1.0231,
+   "wkt": 0.9804,
+   "balls": 6
+  },
+  "M Jansen": {
+   "econ": 1.0282,
+   "wkt": 0.8823,
+   "balls": 235
+  },
+  "KA Maharaj": {
+   "econ": 0.9306,
+   "wkt": 0.941,
+   "balls": 689
+  },
+  "K Rabada": {
+   "econ": 1.0567,
+   "wkt": 0.9597,
+   "balls": 1327
+  },
+  "A Nortje": {
+   "econ": 0.9325,
+   "wkt": 1.0962,
+   "balls": 828
+  },
+  "T Shamsi": {
+   "econ": 0.9545,
+   "wkt": 1.0919,
+   "balls": 1480
+  }
+ }
+}
