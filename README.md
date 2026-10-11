@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/called-it-logo.png" alt="Called It: the third umpire for your match group chat" width="260">
+</p>
+
 # Called It
 
 **The third umpire for your match group chat.**
