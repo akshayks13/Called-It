@@ -12,7 +12,7 @@ export const START_POINTS = [
 const STEPS = [
   { n: "1", title: "Just chat", body: "Type or speak the way you do in your match group. English or Hinglish." },
   { n: "2", title: "The umpire catches your calls", body: "“Klaasen agle over mein out pakka” becomes a precise, checkable call, rated by how bold it is." },
-  { n: "3", title: "Receipts, ball by ball", body: "Right? “Bola Tha!” and the points. Wrong? A roast, on the record. No money, only bragging rights." },
+  { n: "3", title: "Receipts, ball by ball", body: "Right? \u201cCalled it!\u201d and the points. Wrong? A roast, on the record. No money, only bragging rights." },
 ];
 
 export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, startIdx: number) => void; busy: boolean }) {
@@ -22,7 +22,7 @@ export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, st
   // prefill the name from the last visit (after hydration, so server and client HTML match)
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("bolatha:name");
+      const saved = localStorage.getItem("calledit:name");
       if (saved && nameInput.current && !nameInput.current.value) nameInput.current.value = saved;
     } catch {}
   }, []);
@@ -30,7 +30,7 @@ export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, st
   const join = () => {
     const clean = (nameInput.current?.value ?? "").trim().slice(0, 18) || "You";
     try {
-      localStorage.setItem("bolatha:name", clean);
+      localStorage.setItem("calledit:name", clean);
     } catch {}
     onJoin(clean, startIdx);
   };
@@ -39,7 +39,7 @@ export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, st
     <div className="min-h-dvh flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-[440px]">
         <p className="text-[11px] tracking-[0.2em] text-muted uppercase">Third umpire for your match group chat</p>
-        <h1 className="font-display text-amber text-[64px] leading-[0.95] mt-2">BOLA THA!</h1>
+        <h1 className="font-display text-amber text-[64px] leading-[0.95] mt-2">CALLED IT</h1>
         <p className="mt-3 text-[17px] leading-snug text-fg">
           Every fan calls the match. Nobody keeps score. <span className="text-muted">Until now.</span>
         </p>

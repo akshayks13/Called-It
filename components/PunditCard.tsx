@@ -23,7 +23,7 @@ export default function PunditCard({ snap, stats, verdict, writtenByAi, onClose,
   const share = () =>
     shareText(
       [
-        `🧾 My Bola Tha! pundit card: ${verdict.title}`,
+        `🧾 My Called It pundit card: ${verdict.title}`,
         `${stats.hits} of ${stats.made} calls right, ${signed(stats.points)} points, #${rank} of ${snap.board.length}.`,
         stats.boldestHit ? `Best call: "${stats.boldestHit.text}" (${oddsText(stats.boldestHit.p)})` : "",
         window.location.origin,

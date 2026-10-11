@@ -134,7 +134,7 @@ export default function RoomView({ name, startIdx, onLeave }: Props) {
       <main className="flex h-dvh w-full flex-col border-line lg:max-w-[480px] lg:border-x">
         <header className="border-b border-line bg-panel">
           <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
-            <span className="font-display text-amber text-[19px] leading-none whitespace-nowrap">BOLA THA!</span>
+            <span className="font-display text-amber text-[19px] leading-none whitespace-nowrap">CALLED IT</span>
             <span className="hidden min-[400px]:inline rounded border border-line px-1.5 py-px text-[9.5px] font-semibold tracking-wider text-muted" title="A real match, replayed ball by ball">
               REPLAY
             </span>

@@ -1,10 +1,10 @@
-# Bola Tha!
+# Called It
 
 **The third umpire for your match group chat.**
 
-Live demo: https://bola-tha.vercel.app
+Live demo: https://calledit-live.vercel.app
 
-Fans don't just watch a match, they call it: "Bumrah gets him this over", "200 pakka". Those calls vanish in the group chat and nobody keeps score. Bola Tha! lets you chat the way you already do, in English or Hinglish. An AI third umpire spots the predictions hidden in the banter, turns each one into a precise, checkable call, rates how bold it is, settles it ball by ball, and posts the receipt: "Bola Tha!" ("Told you!") or a roast. No money, no prizes. The stake is being right in front of your friends.
+Fans don't just watch a match, they call it: "Bumrah gets him this over", "200 pakka". Those calls vanish in the group chat and nobody keeps score. Called It lets you chat the way you already do, in English or Hinglish. An AI third umpire spots the predictions hidden in the banter, turns each one into a precise, checkable call, rates how bold it is, settles it ball by ball, and posts the receipt: "Called it!" or a roast. The umpire answers in the fan's own language, so a Hinglish call gets a "Bola tha!" stamp. No money, no prizes. The stake is being right in front of your friends.
 
 The demo replays a real match ball by ball as if it were live (ICC Men's T20 World Cup Final 2024, India v South Africa), so it works whenever you open it.
 

@@ -3,12 +3,12 @@
 import { oddsText } from "@/lib/room/scoring";
 import type { Call } from "@/lib/room/room";
 import { ShareIcon } from "./icons";
-import { signed } from "./ui";
+import { signed, stampFor } from "./ui";
 
 export function receiptShareText(call: Call, url: string): string {
   const hit = call.status === "hit";
   return [
-    hit ? "🧾 BOLA THA!" : "🧾 Third umpire receipt",
+    hit ? `\uD83E\uDDFE ${stampFor(call.text, true)}` : "\uD83E\uDDFE Third umpire receipt",
     `I said "${call.text}" at ${call.said.score}.`,
     `Checked: ${call.desc} ${hit ? "✅" : "❌"} (${oddsText(call.p)})`,
     `${signed(call.settled?.points ?? 0)} bragging rights.`,
@@ -68,7 +68,7 @@ export default function Receipt({ call, name, mine }: { call: Call; name: string
             <p className="mt-1.5 text-[13px] font-semibold">POINTS {signed(call.settled.points)}</p>
           </div>
           <span className={`stamp thump shrink-0 ${mine ? "text-[26px]" : "text-[19px]"} ${hit ? "stamp-hit" : "stamp-miss"}`}>
-            {hit ? "BOLA THA!" : "GALAT!"}
+            {stampFor(call.text, hit)}
           </span>
         </div>
 

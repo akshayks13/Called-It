@@ -7,7 +7,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const anton = Anton({ variable: "--font-anton", subsets: ["latin"], weight: "400" });
 
 export const metadata: Metadata = {
-  title: "Bola Tha! The third umpire for your match group chat",
+  title: "Called It: the third umpire for your match group chat",
   description:
     "Chat through a live match the way you always do. An AI third umpire catches the predictions in the banter, settles them ball by ball and keeps the receipts.",
 };
