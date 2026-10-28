@@ -63,7 +63,7 @@ function CallTag({ call, mine, retractable, onRetract }: { call: Call; mine: boo
         <div className="mt-0.5 flex justify-end gap-2 text-[10px] text-faint">
           <span>
             {oddsText(call.p)}
-            {call.source ? ` · read by ${call.source === "rules" ? "backup rules" : "AI"}` : ""}
+            {call.source ? ` · read by ${call.source === "rules" ? "built-in reader" : "AI"}` : ""}
           </span>
           {retractable && (
             <button type="button" onClick={onRetract} className="underline underline-offset-2 hover:text-fg">

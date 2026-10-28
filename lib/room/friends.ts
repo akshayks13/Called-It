@@ -1,5 +1,5 @@
 /**
- * The three demo friends. Everything they say is written here and ships with
+ * The three bot opponents. Everything they say is written here and ships with
  * the app, so they cost no AI requests. Their calls go through exactly the same
  * rating and settlement as the user's.
  *
@@ -191,7 +191,7 @@ export function reactionFor(ball: Ball, battingTeam: string, roll: number): { by
   if (roll > chance) return null;
   const pick = Math.floor((roll / chance) * 1000);
   const by = FRIENDS[pick % FRIENDS.length].id;
-  // every demo friend is watching as an India supporter, Kabir just hides it
+  // every bot is watching as an India supporter, Kabir just hides it
   const goodForIndia = mood === "wicket" ? battingTeam !== IND : battingTeam === IND;
   const lines = REACTIONS[by][mood][goodForIndia ? "good" : "bad"];
   return { by, text: lines[Math.floor(pick / FRIENDS.length) % lines.length] };

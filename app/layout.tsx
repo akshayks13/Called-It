@@ -1,22 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const anton = Anton({ variable: "--font-anton", subsets: ["latin"], weight: "400" });
+const geistSans = localFont({ src: "./fonts/geist.ttf", variable: "--font-geist-sans", weight: "100 900", display: "swap" });
+const geistMono = localFont({ src: "./fonts/geist-mono.ttf", variable: "--font-geist-mono", weight: "100 900", display: "swap" });
+const anton = localFont({ src: "./fonts/anton.ttf", variable: "--font-anton", weight: "400", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Called It: the third umpire for your match group chat",
+  applicationName: "Called It",
+  title: "Called It — Cricket calls. Real receipts.",
   description:
-    "Chat through a live match the way you always do. An AI third umpire catches the predictions in the banter, settles them ball by ball and keeps the receipts.",
+    "Put your cricket instincts on the record. Play a match replay, call the next wicket, compete with bot opponents and keep the receipts. Free to play.",
+  openGraph: {
+    type: "website",
+    siteName: "Called It",
+    title: "Called It — Call the match. Keep the receipt.",
+    description: "Cricket predictions, ball-by-ball verdicts, and bragging rights. Play the solo replay for free.",
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#0b1015",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

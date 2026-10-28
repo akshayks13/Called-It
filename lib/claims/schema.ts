@@ -53,6 +53,20 @@ export const isBatterMetric = (m: Metric) => m.startsWith("batter_");
 export const isBowlerMetric = (m: Metric) => m.startsWith("bowler_");
 export const isInningsMetric = (m: Metric) => m.startsWith("innings_");
 
+/** Validate stored/network claims before they reach the scoring engine. */
+export function isClaim(value: unknown): value is Claim {
+  if (!value || typeof value !== "object") return false;
+  const c = value as Claim;
+  return METRICS.includes(c.metric) && OPS.includes(c.op) &&
+    Number.isInteger(c.value) && c.value >= 0 && c.value <= 1000 &&
+    (c.basis === "total" || c.basis === "window") &&
+    (c.player === undefined || typeof c.player === "string") &&
+    (c.team === undefined || typeof c.team === "string") &&
+    !!c.window && WINDOW_TYPES.includes(c.window.type) &&
+    ((c.window.type !== "over" && c.window.type !== "by_over") || (Number.isInteger(c.window.over) && c.window.over! >= 1 && c.window.over! <= 20)) &&
+    (c.window.type !== "balls" || (Number.isInteger(c.window.balls) && c.window.balls! >= 1 && c.window.balls! <= 120));
+}
+
 /**
  * Tidy a claim so equivalent wordings end up identical: short windows always
  * count from now, yes/no metrics are 0 or 1.

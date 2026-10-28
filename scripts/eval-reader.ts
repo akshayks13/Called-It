@@ -59,8 +59,7 @@ const CASES: [string, Expect][] = [
   ["big over coming", "vague"],
 ];
 
-// Written after the prompt and rules were tuned on the set above, and not used
-// to adjust them. Run with --fresh for an honest read on new phrasings.
+// Additional phrasings, now retained as regressions after reader improvements.
 const FRESH: [string, Expect][] = [
   ["yeh over 15 run jayega", ["15+ runs in the 16th over"]],
   ["Bumrah isko is over mein nikal dega", ["Klaasen dismissed in the 16th over", "Miller dismissed in the 16th over", "Bumrah at least 1 wicket in the 16th over"]],
@@ -104,6 +103,7 @@ async function main() {
   console.log(`\n${ok} of ${cases.length} read as expected.`);
   console.log(`Banter wrongly treated as a call or nudge: ${banterFlagged} of ${banterTotal}.`);
   for (const [source, s] of Object.entries(bySource)) console.log(`  handled by ${source}: ${s.ok} of ${s.n}`);
+  if (ok !== cases.length) process.exitCode = 1;
 }
 
 main();

@@ -51,7 +51,7 @@ export default function Composer({ suggestions, disabled, onSend }: Props) {
     r.onerror = () => setListening(false);
     rec.current = r;
     setListening(true);
-    r.start();
+    try { r.start(); } catch { setListening(false); }
   };
 
   return (

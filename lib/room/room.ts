@@ -3,7 +3,8 @@
  * no React or network in it, so the whole evening can be run in a test.
  */
 import type { CallOption, ReadContext, ReadResult, ReadSource } from "../ai/context";
-import { buildContext } from "../ai/context";
+import { buildContext, isReadResult } from "../ai/context";
+import { readWithRules } from "../ai/fallbackParser";
 import { describeClaim } from "../claims/describe";
 import { type Claim, sameClaim } from "../claims/schema";
 import { invalidReason, type Progress, startProgress, stepProgress } from "../claims/settle";
@@ -68,6 +69,7 @@ export interface RoomSnapshot {
   thisOver: Ball[];
   finished: boolean;
   userName: string;
+  pendingReads: number;
 }
 
 const HIT_LINES = ["Called it. Frame this one.", "Bola tha. Hua bhi.", "Checked upstairs: spot on.", "That one goes straight on the fridge."];
@@ -81,6 +83,16 @@ const scoreText = (s: MatchState, inn = s.inn) => {
 export type AddCallResult =
   | { ok: true; call: Call }
   | { ok: false; why: "invalid" | "noball" | "limit" | "duplicate"; text: string };
+
+type RoomEvent = { at: number } & (
+  | { t: "say"; text: string }
+  | { t: "heard"; msgId: string; lockIdx: number; result: ReadResult; source?: ReadSource }
+  | { t: "pick"; msgId: string; option: number }
+  | { t: "retract"; callId: string }
+);
+
+const SESSION_VERSION = 1;
+export const SESSION_KEY = "calledit:session:v1";
 
 export class Room {
   readonly meta: MatchMeta;
@@ -96,6 +108,8 @@ export class Room {
   private userName: string;
   /** balls bowled when the user joined; the board only counts receipts after this */
   private joinIdx = 0;
+  private pendingReads = new Map<string, number>();
+  private events: RoomEvent[] = [];
 
   constructor(data: MatchData, opts: { userName: string; startIdx?: number }) {
     const replay = new Replay(data);
@@ -136,6 +150,53 @@ export class Room {
     return () => this.listeners.delete(fn);
   };
   getSnapshot = () => this.snap;
+
+  /** Store user actions, never trusted scores. Restoring replays the engine. */
+  save(): string {
+    return JSON.stringify({ version: SESSION_VERSION, match: `${this.meta.date}:${this.meta.title}`, name: this.userName, startIdx: this.joinIdx, idx: this.idx, events: this.events });
+  }
+
+  static restore(data: MatchData, raw: string): Room | null {
+    if (raw.length > 1_000_000) return null;
+    try {
+      const saved = JSON.parse(raw);
+      const index = (n: unknown) => Number.isInteger(n) && Number(n) >= 0 && Number(n) <= data.balls.length;
+      if (!saved || saved.version !== SESSION_VERSION || saved.match !== `${data.meta.date}:${data.meta.title}` ||
+          typeof saved.name !== "string" || saved.name.length > 18 || !index(saved.startIdx) || !index(saved.idx) ||
+          saved.idx < saved.startIdx || !Array.isArray(saved.events) || saved.events.length > 2000) return null;
+      const room = new Room(data, { userName: saved.name, startIdx: saved.startIdx });
+      for (const event of saved.events) {
+        if (!event || !index(event.at) || event.at < room.idx || event.at > saved.idx) return null;
+        while (room.idx < event.at) room.tick();
+        if (event.t === "say" && typeof event.text === "string" && event.text.length <= 200 && !room.state.done) {
+          room.say(event.text);
+        } else if (event.t === "heard" && typeof event.msgId === "string" && index(event.lockIdx) &&
+                   room.pendingReads.get(event.msgId) === event.lockIdx && isReadResult(event.result) &&
+                   (event.source === undefined || ["rules", "gemini", "groq"].includes(event.source))) {
+          room.heard(event.msgId, event.lockIdx, event.result, event.source);
+        } else if (event.t === "pick" && typeof event.msgId === "string" && Number.isInteger(event.option)) {
+          const msg = room.messages.find((m) => m.id === event.msgId);
+          const option = msg?.t === "umpire" ? msg.options?.[event.option] : undefined;
+          if (!option || msg?.t !== "umpire" || msg.used) return null;
+          room.pickOption(event.msgId, option);
+        } else if (event.t === "retract" && typeof event.callId === "string") {
+          const call = room.calls.get(event.callId);
+          if (!call || !room.canRetract(call)) return null;
+          room.retract(event.callId);
+        } else return null;
+      }
+      while (room.idx < saved.idx) room.tick();
+      // A refresh cancels network requests. Recover their original time with
+      // rules, so calls are neither lost nor judged using a later scorecard.
+      for (const [id, lockIdx] of [...room.pendingReads]) {
+        const msg = room.messages.find((m) => m.id === id);
+        if (msg?.t === "chat") room.heard(id, lockIdx, readWithRules(msg.text, buildContext(room.meta, room.states[lockIdx])), "rules");
+      }
+      return room;
+    } catch {
+      return null;
+    }
+  }
 
   get state(): MatchState {
     return this.states[this.idx];
@@ -209,6 +270,9 @@ export class Room {
    * is judged from the moment it was said.
    */
   addCall(by: Who, text: string, claim: Claim, lockIdx: number, lines: { ifRight?: string; ifWrong?: string } = {}): AddCallResult {
+    if (!Number.isInteger(lockIdx) || lockIdx < 0 || lockIdx > this.idx) {
+      return { ok: false, why: "invalid", text: "That call has no valid match time." };
+    }
     const at = this.states[lockIdx];
     const desc = describeClaim(claim);
     const bad = invalidReason(claim, this.meta, at);
@@ -218,7 +282,11 @@ export class Room {
     if (progress.status === "hit") return { ok: false, why: "invalid", text: `"${desc}" has already happened.` };
     if (progress.status === "miss") return { ok: false, why: "invalid", text: `"${desc}" can't happen any more.` };
 
-    const mine = [...this.calls.values()].filter((c) => c.by === by && c.status === "open");
+    // Use the timeline at submission, including calls that settled while the
+    // reader was working. Otherwise identical late replies score repeatedly.
+    const mine = [...this.calls.values()].filter((c) =>
+      c.by === by && c.status !== "void" && (c.settled?.idx ?? Infinity) > lockIdx,
+    );
     if (mine.some((c) => sameClaim(c.claim, claim))) return { ok: false, why: "duplicate", text: "Already noted. One receipt per call." };
     if (by === "you" && mine.length >= MAX_OPEN_CALLS) {
       return { ok: false, why: "limit", text: `You have ${MAX_OPEN_CALLS} calls open. Wait for one to settle.` };
@@ -273,13 +341,20 @@ export class Room {
 
   /** Post the user's message. The caller then asks the reader and reports back with `heard`. */
   say(text: string): { msgId: string; lockIdx: number; ctx: ReadContext } {
+    text = text.trim().slice(0, 200);
+    this.events.push({ at: this.idx, t: "say", text });
     const msgId = this.chat("you", text, true);
+    this.pendingReads.set(msgId, this.idx);
     this.publish();
     return { msgId, lockIdx: this.idx, ctx: this.context() };
   }
 
   /** The reader's verdict on a message posted with `say`. */
   heard(msgId: string, lockIdx: number, result: ReadResult, source?: ReadSource) {
+    // A request is consumed once, and only at the time recorded by say().
+    if (this.pendingReads.get(msgId) !== lockIdx) return;
+    this.pendingReads.delete(msgId);
+    this.events.push({ at: this.idx, t: "heard", msgId, lockIdx, result, source });
     const msg = this.messages.find((m) => m.id === msgId);
     if (msg?.t === "chat") msg.reading = false;
     const text = msg?.t === "chat" ? msg.text : "";
@@ -305,7 +380,9 @@ export class Room {
   /** The user tapped one of the umpire's concrete versions. */
   pickOption(umpireMsgId: string, option: CallOption) {
     const m = this.messages.find((x) => x.id === umpireMsgId);
-    if (m?.t === "umpire") m.used = true;
+    if (this.state.done || m?.t !== "umpire" || m.used || !m.options?.some((o) => o.text === option.text && sameClaim(o.claim, option.claim))) return;
+    m.used = true;
+    this.events.push({ at: this.idx, t: "pick", msgId: umpireMsgId, option: m.options!.findIndex((o) => o.text === option.text && sameClaim(o.claim, option.claim)) });
     const msgId = this.chat("you", option.text);
     const r = this.addCall("you", option.text, option.claim, this.idx);
     if (r.ok) this.tag(msgId, r.call.id);
@@ -321,6 +398,7 @@ export class Room {
     const call = this.calls.get(callId);
     if (!call || !this.canRetract(call)) return;
     call.status = "void";
+    this.events.push({ at: this.idx, t: "retract", callId });
     for (const m of this.messages) if (m.t === "chat" && m.callId === callId) delete m.callId;
     this.publish();
   }
@@ -368,8 +446,8 @@ export class Room {
     return [...this.calls.values()];
   }
   /** calls that count on the board: settled since the user joined */
-  countedCalls(who: Who): Call[] {
-    return this.allCalls().filter((c) => c.by === who && c.settled && c.settled.idx > this.joinIdx);
+  countedCalls(who: Who, calls = this.allCalls()): Call[] {
+    return calls.filter((c) => c.by === who && c.settled && c.settled.idx > this.joinIdx);
   }
 
   private publish() {
@@ -390,6 +468,7 @@ export class Room {
       thisOver,
       finished: this.idx >= this.balls.length,
       userName: this.userName,
+      pendingReads: this.pendingReads.size,
     };
     for (const fn of this.listeners) fn();
   }

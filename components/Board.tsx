@@ -23,7 +23,7 @@ export function Standings({ snap }: { snap: RoomSnapshot }) {
                 <p className="truncate text-sm font-medium">
                   {r.name}
                   {me && <span className="ml-1.5 text-[10px] font-normal text-hit">you</span>}
-                  {!me && <span className="ml-1.5 text-[10px] font-normal text-faint">demo</span>}
+                  {!me && <span className="ml-1.5 text-[10px] font-normal text-faint">bot</span>}
                 </p>
                 <p className="truncate text-[11px] text-muted">
                   {r.hits} right, {r.misses} wrong{r.open ? `, ${r.open} open` : ""}

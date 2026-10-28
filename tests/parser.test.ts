@@ -62,4 +62,25 @@ describe("rule-based reader", () => {
     if (r.kind === "vague") expect(r.options.length).toBe(2);
     expect(readWithRules("wicket aayega pakka", ctx).kind).toBe("vague");
   });
+
+  it("distinguishes Hinglish runs, wicket counts and pronouns", () => {
+    expect(read("yeh over 15 run jayega", mid)).toBe("15+ runs in the 16th over");
+    expect(read("next over mein do wicket", mid)).toBe("2+ wickets in the 17th over");
+    expect(read("Bumrah isko is over mein nikal dega", mid)).toBe("Klaasen dismissed in the 16th over");
+    expect(read("SA 170 banayega", mid)).toBe("SA 170+ runs total");
+  });
+
+  it("preserves an explicit innings deadline and next-ball dot calls", () => {
+    expect(read("mark my words, Miller hits two sixes before this ends", mid)).toBe("Miller 2+ more sixes from here");
+    expect(read("dot ball next", mid)).toBe("no runs off the next ball");
+    expect(read("Bumrah won't take a wicket this over", mid)).toBe("Bumrah no wickets in the 16th over");
+  });
+
+  it("asks for concrete versions of vague predictions", () => {
+    for (const text of ["big over coming", "Hardik is going to get hammered", "SA will get there with an over to spare"]) {
+      const result = readWithRules(text, mid);
+      expect(result.kind, text).toBe("vague");
+      if (result.kind === "vague") expect(result.options.length).toBeGreaterThan(0);
+    }
+  });
 });

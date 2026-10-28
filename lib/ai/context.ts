@@ -1,4 +1,4 @@
-import type { Claim } from "../claims/schema";
+import { isClaim, type Claim } from "../claims/schema";
 import type { MatchMeta, MatchState } from "../match/types";
 import { chase, currentOverNumber, oversText } from "../match/replay";
 
@@ -60,3 +60,15 @@ export type ReadResult =
   | { kind: "vague"; nudge: string; options: CallOption[] };
 
 export type ReadSource = "gemini" | "groq" | "rules";
+
+export function isReadResult(value: unknown): value is ReadResult {
+  if (!value || typeof value !== "object") return false;
+  const r = value as ReadResult;
+  if (r.kind === "banter") return true;
+  if (r.kind === "call") return isClaim(r.claim) &&
+    (r.ifRight === undefined || (typeof r.ifRight === "string" && r.ifRight.length <= 120)) &&
+    (r.ifWrong === undefined || (typeof r.ifWrong === "string" && r.ifWrong.length <= 120));
+  return r.kind === "vague" && typeof r.nudge === "string" && r.nudge.length <= 160 &&
+    Array.isArray(r.options) && r.options.length <= 3 &&
+    r.options.every((o) => o && typeof o.text === "string" && o.text.length <= 200 && isClaim(o.claim));
+}

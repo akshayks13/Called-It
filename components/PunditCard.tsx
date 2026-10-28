@@ -7,6 +7,7 @@ import type { PunditStats, Verdict } from "@/lib/room/stats";
 import { CloseIcon, ShareIcon } from "./icons";
 import { shareText } from "./Receipt";
 import { signed } from "./ui";
+import Dialog from "./Dialog";
 
 interface Props {
   snap: RoomSnapshot;
@@ -33,7 +34,7 @@ export default function PunditCard({ snap, stats, verdict, writtenByAi, onClose,
     );
 
   return (
-    <div className="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-black/70 p-4" role="dialog" aria-modal="true" aria-label="Your pundit card">
+    <Dialog label="Your pundit card" onClose={onClose} className="open:grid place-items-center p-4">
       <div className="rise w-full max-w-[380px]">
         <div className="receipt px-5 pt-5 pb-5 text-[12.5px]">
           <div className="flex items-start justify-between">
@@ -43,7 +44,7 @@ export default function PunditCard({ snap, stats, verdict, writtenByAi, onClose,
             </button>
           </div>
           <p className="mt-2 text-paper-muted">{snap.userName}, tonight you were</p>
-          <p className="font-display text-[34px] leading-none mt-1 uppercase">{verdict.title}</p>
+          <p className="font-display text-[34px] leading-none mt-1 break-words uppercase">{verdict.title}</p>
           <p className="mt-2.5 font-sans text-[14px] leading-snug">{verdict.verdict}</p>
           {writtenByAi && <p className="mt-1 text-[10px] text-paper-muted">written by AI from your calls</p>}
 
@@ -112,6 +113,6 @@ export default function PunditCard({ snap, stats, verdict, writtenByAi, onClose,
           </div>
         </div>
       </div>
-    </div>
+    </Dialog>
   );
 }

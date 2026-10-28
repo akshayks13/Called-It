@@ -13,7 +13,7 @@ import type { CallOption, ReadContext, ReadResult } from "./context";
 const NUMBER_WORDS: Record<string, number> = {
   one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
   twelve: 12, fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50, hundred: 100, century: 100,
-  ek: 1, teen: 3, chaar: 4, paanch: 5, panch: 5, das: 10, dus: 10, bees: 20, pachaas: 50, sau: 100,
+  ek: 1, do: 2, teen: 3, chaar: 4, paanch: 5, panch: 5, das: 10, dus: 10, bees: 20, pachaas: 50, sau: 100,
 };
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -75,6 +75,7 @@ export function looksLikeCall(text: string, ctx: ReadContext): boolean {
   const strong = STRONG.test(t);
   const future = FUTURE.test(t);
   const named = findPlayers(t).length > 0 || findTeams(t, ctx.teams).length > 0;
+  if (/\s(big|bada) over (coming|aayega|hoga)\s/.test(t)) return true;
 
   // "that was a huge six", "kya shot tha": talking about what already happened
   if (!future && !digit && /\s(was|were|what a|that was|did|just|tha|thi)\s/.test(t)) return false;
@@ -96,6 +97,7 @@ function findWindow(t: string, ctx: ReadContext): { window?: ClaimWindow; rest: 
   let m: RegExpExecArray | null;
   const cut = (mm: RegExpExecArray) => t.replace(mm[0], " ");
 
+  if ((m = /\s(ball|delivery|gend)\snext\s/.exec(t))) return { window: { type: "balls", balls: 1 }, rest: cut(m) };
   if ((m = /\s(next|agl[aie]|agle)\s(\d+)\s(balls?|deliver\w+|gend\w*)\s/.exec(t))) return { window: { type: "balls", balls: Number(m[2]) }, rest: cut(m) };
   if ((m = /\s(next|agl[aie]|agle|is|iss|this|ye|yeh|isi)\s(ball|delivery|gend)\s/.exec(t))) return { window: { type: "balls", balls: 1 }, rest: cut(m) };
   if ((m = /\s(next|agl[aie]|agle|within|in|andar)\s(\d+|two|three|do|teen)\s(overs?)(\s(mein|me|ke andar))?\s/.exec(t))) {
@@ -112,13 +114,14 @@ function findWindow(t: string, ctx: ReadContext): { window?: ClaimWindow; rest: 
   if ((m = /\s(\d{1,2})(st|nd|rd|th)\sover(\smein|\sme)?\s/.exec(t))) return { window: { type: "over", over: Number(m[1]) }, rest: cut(m) };
   if ((m = /\sover\s(\d{1,2})(\smein|\sme)?\s/.exec(t))) return { window: { type: "over", over: Number(m[1]) }, rest: cut(m) };
   if ((m = /\s(in the\s)?power ?play(\smein|\sme)?\s/.exec(t))) return { window: { type: "by_over", over: 6 }, rest: cut(m) };
+  if ((m = /\s(before this ends|till the end|by the end|this innings)\s/.exec(t))) return { window: { type: "innings" }, rest: cut(m) };
   return { rest: t };
 }
 
 const NEGATIVE = /\s(not|wont|won t|cant|cannot|no|never|nahi|nahin|nhi|nai|under|below|less than|se kam|fewer)\s/;
 const WIN = /\s(win|wins|winning|won|jeet\w*|jit\w*|chase kar\w*|chase ho\w*|chases?|defend\w*|lift\w*|champions?)\s/;
 const LOSE = /\s(lose|loses|losing|lost|haar\w*|harega|haregi|har gaya|choke\w*|bottle\w*|gaya|gayi|finished|khatam)\s/;
-const OUT = /\s(out|gone|wicket|dismissed|departs?|udega|bowled|caught|lbw|stumped|jayega|jaega|niklega)\s/;
+const OUT = /\s(out|gone|wicket|dismissed|departs?|udega|bowled|caught|lbw|stumped|niklega|nikal dega)\s/;
 const WICKET = /\s(wickets?|wkts?|strike|strikes|breakthrough|girega|giregi)\s/;
 const SIX = /\s(six|sixes|sixer|sixers|chakka|chhakka|chakke|maximum)\s/;
 const FOUR = /\s(four|fours|chauka|chauke)\s/;
@@ -162,13 +165,25 @@ export function readWithRules(text: string, ctx: ReadContext): ReadResult {
     const batting = info.team === ctx.battingTeam;
     const small = nums.find((n) => n >= 1 && n <= 6);
 
+    if (!batting && info.bowls && window && ctx.striker && has(t, /\s(isko|him|he)\s/) && has(t, /\s(nikal dega|dismiss\w*|out|gone)\s/)) {
+      return call({ metric: "batter_out", player: ctx.striker, op: "eq", value: 1, window, basis: "window" });
+    }
+
+    if (has(t, /\s(hammered|smashed|expensive)\s/)) {
+      return {
+        kind: "vague",
+        nudge: "How many runs? Give the umpire a number to check.",
+        options: [option(`${info.short} concedes 12 this over`, { metric: "bowler_runs_conceded", player: id, op: "gte", value: 12, window: window ?? overNow, basis: "window" })],
+      };
+    }
+
     if (!batting && info.bowls && (has(t, WICKET) || has(t, OUT) || has(t, /\s(lega|legi|le ga|hat ?trick)\s/))) {
       const n = has(t, /\shat ?trick\s/) ? 3 : (small ?? 1);
       if (window) return call({ metric: "bowler_wickets", player: id, op: negative ? "eq" : "gte", value: negative ? 0 : n, window, basis: "window" });
       // "Bumrah wicket lega" while he is bowling means this over; "2 wickets" is a bigger claim than one over
-      if (ctx.bowler === id && n === 1) return call({ metric: "bowler_wickets", player: id, op: "gte", value: n, window: overNow, basis: "window" });
+      if (ctx.bowler === id && n === 1) return call({ metric: "bowler_wickets", player: id, op: negative ? "eq" : "gte", value: negative ? 0 : n, window: overNow, basis: "window" });
       // "takes a wicket" means one more from here; "gets 3 tonight" means his final figures
-      return call({ metric: "bowler_wickets", player: id, op: "gte", value: n, window: { type: "innings" }, basis: n === 1 ? "window" : "total" });
+      return call({ metric: "bowler_wickets", player: id, op: negative ? "eq" : "gte", value: negative ? 0 : n, window: { type: "innings" }, basis: n === 1 ? "window" : "total" });
     }
 
     if (batting) {
@@ -204,6 +219,18 @@ export function readWithRules(text: string, ctx: ReadContext): ReadResult {
   // --- nobody named: the innings in progress ---
   const team = teams[0] ?? ctx.battingTeam;
   const small = nums.find((n) => n >= 1 && n <= 6);
+
+  if (has(t, /\s(dot|dots|maiden)\s/)) {
+    if (window || has(t, /\smaiden\s/)) return call({ metric: "innings_runs", team, op: "eq", value: 0, window: window ?? overNow, basis: "window" });
+  }
+
+  if (has(t, /\s(big over|bada over)\s/)) {
+    return { kind: "vague", nudge: "How many runs make it a big over?", options: [12, 18].map((value) => option(`${value} runs this over`, { metric: "innings_runs", team, op: "gte", value, window: overNow, basis: "window" })) };
+  }
+
+  if (teams.length && has(t, /\s(with an over to spare|with \d+ (balls?|overs?) to spare)\s/)) {
+    return { kind: "vague", nudge: "I can check the winner. Want to call that?", options: [option(`${teamShort(team)} to win`, { metric: "match_winner", team, op: "eq", value: 1, window: { type: "match" }, basis: "total" })] };
+  }
 
   if (has(t, /\sall ?out\s/)) {
     return call({ metric: "innings_wickets", team, op: negative ? "lte" : "gte", value: negative ? 9 : 10, window: { type: "innings" }, basis: "total" });

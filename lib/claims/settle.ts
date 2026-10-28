@@ -139,7 +139,7 @@ export const measured = (p: Progress) => p.base + p.acc;
 export function invalidReason(claim: Claim, meta: MatchMeta, s: MatchState): string | null {
   if (s.done) return "The match is over.";
   if (isBatterMetric(claim.metric) || isBowlerMetric(claim.metric)) {
-    if (!claim.player || !PLAYERS[claim.player]) return "I couldn't tell which player you mean.";
+    if (!claim.player || !Object.hasOwn(PLAYERS, claim.player)) return "I couldn't tell which player you mean.";
   }
   if (claim.metric === "match_winner" && !meta.teams.includes(claim.team as string)) {
     return "I couldn't tell which team you mean.";

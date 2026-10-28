@@ -1,10 +1,11 @@
 import { ProviderError } from "./gemini";
+import { aiEnabled } from "./config";
 
 const BASE = "https://api.groq.com/openai/v1";
 let model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 let modelChecked = false;
 
-export const groqConfigured = () => !!process.env.GROQ_API_KEY;
+export const groqConfigured = () => aiEnabled() && !!process.env.GROQ_API_KEY;
 
 const headers = () => ({ "Content-Type": "application/json", Authorization: `Bearer ${process.env.GROQ_API_KEY}` });
 
@@ -20,6 +21,7 @@ async function pickAvailableModel(): Promise<void> {
 
 /** Backup provider (OpenAI-compatible API). Used only when Gemini refuses. */
 export async function groqGenerate(system: string, user: string, shapeHint: string, timeoutMs = 7000): Promise<string> {
+  if (!groqConfigured()) throw new ProviderError("External AI is disabled or unconfigured", 403);
   for (let attempt = 0; attempt < 2; attempt++) {
     const res = await fetch(`${BASE}/chat/completions`, {
       method: "POST",

@@ -1,3 +1,5 @@
+import { aiEnabled } from "./config";
+
 export class ProviderError extends Error {
   constructor(
     message: string,
@@ -12,7 +14,7 @@ const MODELS = (process.env.GEMINI_MODELS ?? "gemini-3.5-flash-lite,gemini-3.1-f
   .map((m) => m.trim())
   .filter(Boolean);
 
-export const geminiConfigured = () => !!process.env.GEMINI_API_KEY;
+export const geminiConfigured = () => aiEnabled() && !!process.env.GEMINI_API_KEY;
 
 async function call(model: string, system: string, user: string, schema: object | null, timeoutMs: number): Promise<string> {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -43,6 +45,7 @@ async function call(model: string, system: string, user: string, schema: object 
  * schema (400) is retried once with plain JSON mode.
  */
 export async function geminiGenerate(system: string, user: string, schema: object, timeoutMs = 7000): Promise<string> {
+  if (!geminiConfigured()) throw new ProviderError("External AI is disabled or unconfigured", 403);
   let last: unknown;
   for (const model of MODELS) {
     try {

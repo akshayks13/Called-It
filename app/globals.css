@@ -25,6 +25,15 @@ body {
   height: 100%;
 }
 
+.home-shell {
+  background-image: radial-gradient(ellipse at 8% 20%, #ffb02008, transparent 55%);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 3px;
+}
+
 body {
   background: var(--color-ink);
   color: var(--color-fg);

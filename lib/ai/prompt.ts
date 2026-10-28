@@ -133,7 +133,7 @@ function toClaim(raw: any, ctx: ReadContext): Claim | null {
   };
   const needsPlayer = metric.startsWith("batter_") || metric.startsWith("bowler_");
   if (needsPlayer) {
-    if (typeof raw.player !== "string" || !PLAYERS[raw.player]) return null;
+    if (typeof raw.player !== "string" || !Object.hasOwn(PLAYERS, raw.player)) return null;
     claim.player = raw.player;
   } else {
     const team = ctx.teams.find((t) => t === raw.team);
@@ -156,6 +156,7 @@ export function parseModelOutput(rawText: string, ctx: ReadContext): ReadResult 
   } catch {
     return null;
   }
+  if (!j || typeof j !== "object" || Array.isArray(j)) return null;
   if (j.kind === "banter") return { kind: "banter" };
   if (j.kind === "call") {
     const claim = toClaim(j.claim, ctx);

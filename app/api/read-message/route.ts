@@ -4,21 +4,21 @@ import { looksLikeCall } from "@/lib/ai/fallbackParser";
 import { allowAi, clientIp } from "@/lib/ai/limits";
 import { readMessage } from "@/lib/ai/read";
 import { PLAYERS } from "@/lib/match/players";
+import { isRecord, readJson } from "@/lib/http";
 
 const TEAMS = match.meta.teams as [string, string];
-const player = (v: unknown) => (typeof v === "string" && PLAYERS[v] ? v : null);
+const player = (v: unknown) => (typeof v === "string" && Object.hasOwn(PLAYERS, v) ? v : null);
 const int = (v: unknown, lo: number, hi: number, fallback: number) =>
   typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : fallback;
 
 /** Rebuild the context from trusted values so nothing free-form from the client reaches the prompt. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function cleanContext(c: any): ReadContext | null {
-  if (!c || typeof c !== "object") return null;
+function cleanContext(c: unknown): ReadContext | null {
+  if (!isRecord(c)) return null;
   const battingTeam = TEAMS.find((t) => t === c.battingTeam);
   if (!battingTeam) return null;
   const bowlingTeam = TEAMS.find((t) => t !== battingTeam) as string;
   const atCrease: Record<string, string> = {};
-  for (const [k, v] of Object.entries(c.atCrease ?? {})) {
+  for (const [k, v] of Object.entries(isRecord(c.atCrease) ? c.atCrease : {})) {
     if (player(k) && typeof v === "string" && /^\d{1,3} \(\d{1,3}\)$/.test(v)) atCrease[k] = v;
   }
   const innings = c.innings === 2 ? 2 : 1;
@@ -44,7 +44,8 @@ function cleanContext(c: any): ReadContext | null {
 }
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
+  const raw = await readJson(req);
+  const body = isRecord(raw) ? raw : null;
   const text = typeof body?.text === "string" ? body.text.trim().slice(0, 200) : "";
   const ctx = cleanContext(body?.ctx);
   if (!text || !ctx) return Response.json({ error: "bad request" }, { status: 400 });

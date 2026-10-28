@@ -1,25 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PlayIcon, TrophyIcon } from "./icons";
 
 export const START_POINTS = [
-  { idx: 200, label: "The chase heats up", sub: "SA 101/3, need 76 off 48" },
-  { idx: 220, label: "30 needed off 30", sub: "SA 147/4, Klaasen on 49" },
-  { idx: 244, label: "The last over", sub: "SA need 16 off 6" },
-  { idx: 0, label: "From ball one", sub: "India bat first" },
+  { idx: 200, label: "The chase heats up", sub: "SA 101/3, need 76 off 48", time: "~4 min" },
+  { idx: 220, label: "30 needed off 30", sub: "SA 147/4, Klaasen on 49", time: "~3 min" },
+  { idx: 244, label: "The last over", sub: "SA need 16 off 6", time: "~1 min" },
+  { idx: 0, label: "From ball one", sub: "India bat first", time: "~21 min" },
 ];
 
 const STEPS = [
-  { n: "1", title: "Just chat", body: "Type or speak the way you do in your match group. English or Hinglish." },
-  { n: "2", title: "The umpire catches your calls", body: "“Klaasen agle over mein out pakka” becomes a precise, checkable call, rated by how bold it is." },
-  { n: "3", title: "Receipts, ball by ball", body: "Right? \u201cCalled it!\u201d and the points. Wrong? A roast, on the record. No money, only bragging rights." },
+  { n: "01", title: "Make the call", body: "“Klaasen out this over.” Say what you think happens next, in English or Hinglish." },
+  { n: "02", title: "Let the match decide", body: "The umpire turns your words into a checkable call. Every ball brings the verdict closer." },
+  { n: "03", title: "Keep the receipt", body: "Earn points for being right, climb the board, and share the calls worth remembering." },
 ];
 
 export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, startIdx: number) => void; busy: boolean }) {
   const nameInput = useRef<HTMLInputElement>(null);
   const [startIdx, setStartIdx] = useState(START_POINTS[0].idx);
 
-  // prefill the name from the last visit (after hydration, so server and client HTML match)
   useEffect(() => {
     try {
       const saved = localStorage.getItem("calledit:name");
@@ -28,76 +28,110 @@ export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, st
   }, []);
 
   const join = () => {
+    if (busy) return;
     const clean = (nameInput.current?.value ?? "").trim().slice(0, 18) || "You";
-    try {
-      localStorage.setItem("calledit:name", clean);
-    } catch {}
+    try { localStorage.setItem("calledit:name", clean); } catch {}
     onJoin(clean, startIdx);
   };
 
   return (
-    <div className="min-h-dvh flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-[440px]">
-        <p className="text-[11px] tracking-[0.2em] text-muted uppercase">Third umpire for your match group chat</p>
-        <h1 className="font-display text-amber text-[64px] leading-[0.95] mt-2">CALLED IT</h1>
-        <p className="mt-3 text-[17px] leading-snug text-fg">
-          Every fan calls the match. Nobody keeps score. <span className="text-muted">Until now.</span>
-        </p>
+    <div className="home-shell min-h-dvh">
+      <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
+        <header className="flex items-center justify-between border-b border-line/70 py-5">
+          <span className="font-display text-[25px] leading-none tracking-wide text-amber">CALLED IT<span className="text-fg">.</span></span>
+          <a href="#how-it-works" className="text-xs text-muted underline-offset-4 hover:text-fg hover:underline">How to play <span aria-hidden="true">↗</span></a>
+        </header>
 
-        <ol className="mt-6 space-y-3">
-          {STEPS.map((s) => (
-            <li key={s.n} className="flex gap-3">
-              <span className="font-mono text-amber text-sm mt-0.5 w-4 shrink-0">{s.n}</span>
-              <div>
-                <p className="text-sm font-semibold">{s.title}</p>
-                <p className="text-sm text-muted leading-snug">{s.body}</p>
+        <main>
+          <div className="grid items-center gap-9 py-10 sm:py-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-16">
+            <section aria-labelledby="welcome-title">
+              <p className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.22em] text-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber" /> Cricket. Calls. Bragging rights.
+              </p>
+              <h1 id="welcome-title" className="mt-5 font-display text-[clamp(48px,8vw,78px)] leading-[1.04] tracking-[-0.015em]">
+                CALL THE MATCH.<br /><span className="text-amber">KEEP THE RECEIPT.</span>
+              </h1>
+              <p className="mt-5 max-w-[420px] text-[16px] leading-relaxed text-muted">
+                You saw the wicket coming. You backed the comeback. Now put your cricket instincts on the record.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-fg">
+                <span><span className="mr-1.5 text-hit" aria-hidden="true">✓</span>Free to play</span>
+                <span><span className="mr-1.5 text-hit" aria-hidden="true">✓</span>No account needed</span>
+                <span><span className="mr-1.5 text-hit" aria-hidden="true">✓</span>English + Hinglish</span>
               </div>
-            </li>
-          ))}
-        </ol>
 
-        <div className="mt-7 rounded-xl border border-line bg-panel p-4">
-          <label htmlFor="name" className="text-xs text-muted">Your name in the chat</label>
-          <input
-            id="name"
-            ref={nameInput}
-            onKeyDown={(e) => e.key === "Enter" && join()}
-            maxLength={18}
-            placeholder="e.g. Akshay"
-            autoComplete="given-name"
-            className="mt-1 w-full rounded-lg bg-ink border border-line px-3 py-2.5 text-base outline-none focus:border-amber"
-          />
+              <div className="mt-8 hidden max-w-[350px] rounded-xl border border-line bg-panel/70 p-4 sm:block">
+                <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.14em] text-muted">
+                  <span>The group-chat energy</span><TrophyIcon size={14} className="text-amber" />
+                </div>
+                <p className="mt-3 text-[20px] font-medium">“Bola tha.” <span className="text-muted">Now prove it.</span></p>
+                <p className="mt-2 text-xs leading-relaxed text-muted">Three bot opponents. One scoreboard. Every call on the record.</p>
+              </div>
+            </section>
 
-          <p className="mt-4 text-xs text-muted">Join the match at</p>
-          <div className="mt-1.5 grid grid-cols-2 gap-2">
-            {START_POINTS.map((p) => (
-              <button
-                key={p.idx}
-                type="button"
-                onClick={() => setStartIdx(p.idx)}
-                aria-pressed={startIdx === p.idx}
-                className={`text-left rounded-lg border px-3 py-2 transition-colors ${startIdx === p.idx ? "border-amber bg-amber/10" : "border-line hover:border-faint"}`}
-              >
-                <span className="block text-sm font-medium">{p.label}</span>
-                <span className="block text-[11px] text-muted font-mono mt-0.5">{p.sub}</span>
-              </button>
-            ))}
+            <section aria-labelledby="play-title" className="overflow-hidden rounded-2xl border border-line bg-panel shadow-[0_24px_80px_-32px_#000]">
+              <div className="border-b border-line bg-raised/40 px-5 py-4 sm:px-6">
+                <div className="flex items-center justify-between gap-3 text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
+                  <span>Featured replay</span>
+                  <span className="rounded border border-amber/30 bg-amber/10 px-2 py-1 text-amber">Solo mode</span>
+                </div>
+                <p className="mt-3 text-xl font-semibold tracking-tight">India <span className="mx-1 text-sm font-normal text-faint">vs</span> South Africa</p>
+                <p className="mt-1 text-xs text-muted">T20 World Cup Final · 29 June 2024</p>
+              </div>
+
+              <form className="px-5 py-5 sm:px-6" onSubmit={(event) => { event.preventDefault(); join(); }}>
+                <h2 id="play-title" className="text-lg font-semibold">Pick your moment.</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted">Step into the chase or play it from ball one.</p>
+
+                <div className="mt-5">
+                  <label htmlFor="name" className="text-xs font-medium text-fg">Your name in the chat</label>
+                  <input id="name" ref={nameInput} maxLength={18} placeholder="What should we call you?" autoComplete="given-name"
+                    className="mt-2 w-full rounded-lg border border-line bg-ink px-3 py-3 text-base outline-none placeholder:text-faint focus:border-amber" />
+                </div>
+
+                <fieldset className="mt-5">
+                  <legend className="text-xs font-medium text-fg">Choose a starting point</legend>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {START_POINTS.map((point) => (
+                      <button key={point.idx} type="button" onClick={() => setStartIdx(point.idx)} aria-pressed={startIdx === point.idx}
+                        className={`relative rounded-lg border px-3 py-3 text-left transition-colors ${startIdx === point.idx ? "border-amber bg-amber/8" : "border-line hover:border-faint hover:bg-raised/40"}`}>
+                        <span className="block text-[12.5px] font-medium leading-snug">{point.label}</span>
+                        <span className="mt-1 block text-[10px] leading-relaxed text-muted">{point.sub}</span>
+                        <span className="mt-2 block font-mono text-[10px] text-faint">{point.time}</span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <button type="submit" disabled={busy}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-amber py-3.5 text-sm font-semibold text-ink transition hover:brightness-110 active:brightness-95 disabled:opacity-60">
+                  {busy ? "Opening your match…" : <>Start playing <PlayIcon size={14} /></>}
+                </button>
+                <p className="mt-3 text-center text-[10px] leading-relaxed text-muted">Real match replay · 3 scripted bot opponents</p>
+              </form>
+            </section>
           </div>
 
-          <button
-            type="button"
-            onClick={join}
-            disabled={busy}
-            className="mt-4 w-full rounded-lg bg-amber text-ink font-semibold py-3 text-base hover:brightness-110 active:brightness-95 disabled:opacity-60"
-          >
-            {busy ? "Opening the chat…" : "Join the chat"}
-          </button>
-        </div>
+          <section id="how-it-works" aria-labelledby="how-title" className="scroll-mt-5 border-t border-line py-8 sm:py-10">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <h2 id="how-title" className="text-sm font-semibold">Big opinions. Actual receipts.</h2>
+              <span className="text-[10px] uppercase tracking-[0.15em] text-faint">How to play</span>
+            </div>
+            <ol className="grid gap-6 sm:grid-cols-3 sm:gap-8">
+              {STEPS.map((step) => (
+                <li key={step.n}>
+                  <p className="font-mono text-[11px] text-amber">{step.n}<span className="ml-3 font-sans text-sm font-semibold text-fg">{step.title}</span></p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted">{step.body}</p>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </main>
 
-        <p className="mt-4 text-[11px] leading-relaxed text-faint">
-          This is a replay of a real match, played back ball by ball as if live: ICC Men&apos;s T20 World Cup Final, India v South Africa,
-          29 June 2024. Ball-by-ball data from Cricsheet. Rahul, Priya and Kabir are scripted demo friends, not real people.
-        </p>
+        <footer className="flex flex-col justify-between gap-3 border-t border-line py-5 text-[10px] leading-relaxed text-muted sm:flex-row sm:items-center">
+          <p>For the love of the call. No money, no prizes.</p>
+          <p>Match data: <a href="https://cricsheet.org/" className="underline underline-offset-2 hover:text-fg">Cricsheet</a> · <a href="https://opendatacommons.org/licenses/by/1-0/" className="underline underline-offset-2 hover:text-fg">ODC Attribution</a></p>
+        </footer>
       </div>
     </div>
   );

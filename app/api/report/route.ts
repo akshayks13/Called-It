@@ -1,5 +1,6 @@
 import { allowAi, clientIp } from "@/lib/ai/limits";
 import { askAi } from "@/lib/ai/read";
+import { isRecord, readJson } from "@/lib/http";
 
 const SYSTEM = `You are the Third Umpire in a friends' group chat that kept a record of every prediction a fan made during a T20 cricket match. Write that fan's end-of-match "Pundit Card".
 
@@ -17,14 +18,18 @@ const SCHEMA = {
 const HINT = `Reply with a single JSON object: {"title": string, "verdict": string}.`;
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/[\r\n]+/g, " ").slice(0, max) : "");
+const num = (v: unknown, fallback: number) => typeof v === "number" && Number.isFinite(v) ? Math.max(-100_000, Math.min(100_000, Math.round(v))) : fallback;
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => null);
-  if (!body || !Array.isArray(body.calls)) return Response.json({ error: "bad request" }, { status: 400 });
+  const body = await readJson(req);
+  if (!isRecord(body) || !Array.isArray(body.calls) || body.calls.length > 100 || !body.calls.every((c) =>
+    isRecord(c) && ["said", "desc", "when", "tier", "backed"].every((key) => typeof c[key] === "string") &&
+    (c.result === "hit" || c.result === "miss"),
+  )) return Response.json({ error: "bad request" }, { status: 400 });
+  if (body.calls.length === 0) return Response.json({ verdict: null });
   if (!allowAi(clientIp(req))) return Response.json({ verdict: null });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const calls = body.calls.slice(0, 15).map((c: any) => ({
+  const calls = (body.calls as Record<string, unknown>[]).slice(0, 15).map((c) => ({
     said: str(c.said, 200),
     checked_as: str(c.desc, 120),
     when: str(c.when, 30),
@@ -35,8 +40,8 @@ export async function POST(req: Request) {
   const user = JSON.stringify({
     fan: str(body.name, 30) || "Fan",
     match_result: str(body.result, 80),
-    final_rank: `${Number(body.rank) || 0} of ${Number(body.of) || 4}`,
-    points: Number(body.points) || 0,
+    final_rank: `${num(body.rank, 0)} of ${num(body.of, 4)}`,
+    points: num(body.points, 0),
     calls,
   });
 
