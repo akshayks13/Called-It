@@ -1,10 +1,31 @@
-# Called It
+<p align="center">
+  <img src="assets/called-it-logo.png" alt="Called It — cricket ball, umpire hat and neon green wordmark" width="320" />
+</p>
+
+# Called It 🏏
 
 **Call the match. Keep the receipt.**
 
 A free cricket replay game for the opinions you usually leave in the group chat. Call the next wicket, back a comeback, and let the scoreboard settle it. English or Hinglish. Points and bragging rights. No money or prizes.
 
-## Play
+[Quick start](#quick-start) · [Current status](#current-status) · [Development](#development-checks) · [Roadmap](#roadmap)
+
+## Current status
+
+Called It is a playable solo replay app. The prediction reader, ball-by-ball settlement, points, leaderboard and session recovery are implemented. It is not yet a complete live multiplayer product.
+
+| Question | What works today |
+|---|---|
+| Can two real players join the same game? | No. Each visitor plays a separate game in their own browser tab. |
+| Who are Rahul, Priya and Kabir? | Scripted bot opponents, with predefined calls and reactions. |
+| Is the cricket data mocked? | No. The replay uses bundled historical ball-by-ball data for India v South Africa, the 2024 men's T20 World Cup final. |
+| Are scores and verdicts just placeholders? | No. The replay engine updates the scorecard and settles predictions against recorded deliveries. |
+| Does it follow matches happening now? | No. There is no live sports API integration. |
+| Do I need paid APIs or AI keys to play? | No. The default game uses local data and a built-in rules reader. |
+
+## Quick start
+
+Use Node.js 20.9 or newer and npm.
 
 ```bash
 npm ci
@@ -14,6 +35,13 @@ npm run dev
 Open [localhost:3000](http://localhost:3000), choose a name and a starting point, then **Start playing**. No account, API key or paid subscription is required.
 
 The current release is **solo replay mode**: India v South Africa, the 2024 men's T20 World Cup final, replayed ball by ball. Rahul, Priya and Kabir are scripted bot opponents. Every visitor has their own game; shared rooms are planned.
+
+For a local production build:
+
+```bash
+npm run build
+npm start
+```
 
 ## What you can do
 

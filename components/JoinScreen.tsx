@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { PlayIcon, TrophyIcon } from "./icons";
+import Brand from "./Brand";
 
 export const START_POINTS = [
   { idx: 200, label: "The chase heats up", sub: "SA 101/3, need 76 off 48", time: "~4 min" },
@@ -38,7 +39,7 @@ export default function JoinScreen({ onJoin, busy }: { onJoin: (name: string, st
     <div className="home-shell min-h-dvh">
       <div className="mx-auto max-w-[1120px] px-5 sm:px-8">
         <header className="flex items-center justify-between border-b border-line/70 py-5">
-          <span className="font-display text-[25px] leading-none tracking-wide text-amber">CALLED IT<span className="text-fg">.</span></span>
+          <Brand />
           <a href="#how-it-works" className="text-xs text-muted underline-offset-4 hover:text-fg hover:underline">How to play <span aria-hidden="true">↗</span></a>
         </header>
 
