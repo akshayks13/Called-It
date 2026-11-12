@@ -55,10 +55,10 @@ export default function Composer({ suggestions, disabled, onSend }: Props) {
   };
 
   return (
-    <div className="border-t border-line bg-panel px-3 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+    <div className="border-t border-line bg-panel px-3 pt-3 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
       {!disabled && (
         <div className="no-scrollbar -mx-3 mb-2 flex gap-1.5 overflow-x-auto px-3">
-          <span className="shrink-0 self-center text-[10px] uppercase tracking-wider text-faint">Try</span>
+          <span className="shrink-0 self-center font-mono text-[10px] uppercase tracking-wider text-amber">Call it</span>
           {suggestions.map((s) => (
             <button
               key={s}

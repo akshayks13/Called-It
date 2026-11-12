@@ -87,7 +87,7 @@ export function HowScoring() {
       <p className="mt-2 text-[11px] text-faint">Chance of coming true, and what it pays</p>
       <ul className="mt-1 grid grid-cols-2 gap-1.5 text-[11.5px]">
         {TIERS.map((t, i) => (
-          <li key={t.id} className={`flex items-center justify-between rounded border px-2 py-1 ${TIER_STYLE[t.id]}`}>
+          <li key={t.id} className={`flex flex-col items-start gap-1 rounded border px-2.5 py-2 ${TIER_STYLE[t.id]}`}>
             <span>{t.label}</span>
             <span className="font-mono text-[10.5px] opacity-80">
               {i === 0

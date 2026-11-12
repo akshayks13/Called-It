@@ -5,8 +5,8 @@ test("free mode plays through a match without any AI endpoint requests", async (
   page.on("request", (request) => { if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests.push(request.url()); });
   await page.goto("http://127.0.0.1:3101");
   await expect(page).toHaveTitle("Called It — Cricket calls. Real receipts.");
-  await expect(page.getByRole("heading", { name: "CALL THE MATCH. KEEP THE RECEIPT." })).toBeVisible();
-  await expect(page.getByText("Real match replay · 3 scripted bot opponents")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /BIG CALLS\.\s*SMALL MARGINS\.\s*REAL RECEIPTS\./ })).toBeVisible();
+  await expect(page.getByText("You + 3 scripted bots. One scoreboard. No money.")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: test.info().outputPath("product-home.png"), fullPage: true, animations: "disabled" });
   await page.getByLabel("Your name in the chat").fill("Free Fan");

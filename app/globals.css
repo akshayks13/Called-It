@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ink: #0b1015;
-  --color-panel: #131a22;
-  --color-raised: #1a232d;
-  --color-line: #26323f;
-  --color-fg: #e9eef3;
-  --color-muted: #8b99a9;
-  --color-faint: #5d6b7a;
-  --color-amber: #ffb020;
-  --color-hit: #35d07f;
-  --color-miss: #ff5d5d;
-  --color-mine: #17503f;
+  --color-ink: #101410;
+  --color-panel: #181e18;
+  --color-raised: #232c22;
+  --color-line: #354032;
+  --color-fg: #f3f0e5;
+  --color-muted: #a7b1a0;
+  --color-faint: #85917e;
+  --color-amber: #c6f45a;
+  --color-hit: #85dfad;
+  --color-miss: #ff887e;
+  --color-mine: #33442a;
   --color-paper: #f4efe2;
   --color-paper-ink: #22211d;
   --color-paper-muted: #6f6b5f;
@@ -26,7 +26,31 @@ body {
 }
 
 .home-shell {
-  background-image: radial-gradient(ellipse at 8% 20%, #ffb02008, transparent 55%);
+  background-image: linear-gradient(#c6f45a03 1px, transparent 1px), linear-gradient(90deg, #c6f45a03 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+::selection { background: #c6f45a; color: #101410; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), a { cursor: pointer; }
+button, a { transition: background-color 160ms, border-color 160ms, color 160ms, transform 160ms; }
+
+.match-ticket { position: relative; background: #1b231a; box-shadow: 0 24px 70px #0003; }
+.match-ticket::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--color-amber); }
+.moment-option:hover { transform: translateY(-2px); }
+.moment-option[aria-pressed="true"] { box-shadow: inset 3px 0 var(--color-amber); }
+.demo-receipt { transform: rotate(-5deg); box-shadow: 12px 18px 0 #0003; }
+.pitch-lines { position: absolute; width: 260px; height: 320px; border: 1px solid #c6f45a25; border-radius: 50%; transform: rotate(28deg); right: -40px; top: -65px; }
+.pitch-lines::before, .pitch-lines::after { content: ""; position: absolute; border: 1px solid #c6f45a20; inset: 25px; border-radius: 50%; }
+.pitch-lines::after { inset: 65px; }
+.room-shell { background: radial-gradient(ellipse at top left, #c6f45a08, transparent 55%), var(--color-ink); }
+.match-header { background: linear-gradient(135deg, #25301f, #181e18 70%); }
+.score-panel { border-top: 1px solid #c6f45a15; margin: 0 12px; padding-top: 12px; }
+.room-sidebar > section + section { border-top: 1px solid var(--color-line); padding-top: 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+  button, a { transition: none; }
+  .moment-option:hover { transform: none; }
 }
 
 :focus-visible {

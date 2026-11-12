@@ -165,9 +165,9 @@ export default function RoomView({ room, resumed = false, aiEnabled = false, onL
   );
 
   return (
-    <div className="flex h-dvh justify-center">
-      <main className="flex h-dvh w-full flex-col border-line lg:max-w-[480px] lg:border-x">
-        <header className="border-b border-line bg-panel">
+    <div className="room-shell flex h-dvh justify-center">
+      <main className="flex h-dvh w-full flex-col border-line bg-ink lg:max-w-[620px] lg:border-x">
+        <header className="match-header border-b border-line">
           <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
             <Brand compact />
             <span className="hidden min-[400px]:inline rounded border border-line px-1.5 py-px text-[9.5px] font-semibold tracking-wider text-muted" title="A real match, replayed ball by ball">
@@ -221,7 +221,8 @@ export default function RoomView({ room, resumed = false, aiEnabled = false, onL
         <Composer suggestions={suggestions} disabled={snap.finished} onSend={send} />
       </main>
 
-      <aside className="hidden h-dvh w-[380px] shrink-0 flex-col gap-6 overflow-y-auto px-6 py-5 lg:flex">
+      <aside className="room-sidebar hidden h-dvh w-[340px] shrink-0 flex-col gap-6 overflow-y-auto px-6 py-7 lg:flex">
+        <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-amber"><span>The scorebook</span><span>01 / REPLAY</span></div>
         {panels}
         <p className="text-[11px] leading-relaxed text-faint">
           Replay of the {DATA.meta.event} {DATA.meta.stage}, {DATA.meta.title}, {DATA.meta.date}. Data: {DATA.meta.source}. Rahul, Priya and Kabir are

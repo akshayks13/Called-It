@@ -31,11 +31,11 @@ export default function Scoreboard({ snap }: { snap: RoomSnapshot }) {
   const bowl = s.bowler ? inn.bowl[s.bowler] : undefined;
 
   return (
-    <div className="px-3 pb-2.5">
+    <div className="score-panel pb-3">
       <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="text-sm font-semibold text-muted">{teamShort(inn.team)}</span>
-          <span className="font-mono text-amber text-[30px] leading-none font-semibold tabular-nums">
+          <span className="font-display text-amber text-[42px] leading-none tabular-nums tracking-wide">
             {inn.runs}/{inn.wickets}
           </span>
           <span className="font-mono text-sm text-muted tabular-nums">({oversText(inn.legal)})</span>
